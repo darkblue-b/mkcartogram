@@ -1,0 +1,40 @@
+* no country codes.. have to match by name?
+   will the country match up with the data you are supplying ??
+* Is this stock Natural Earth? or is this file modified at all ?
+* the list of isalnds and nations does not include New Zealend.. just the two main islands? all of NZ ?
+
+=========
+
+create table b_biggest_geoms as
+select objectid, country, sov, the_geom
+from the_new_world
+where (country, st_area(the_geom)) in
+(
+select country, max(st_area(the_geom)) as area
+from  public.the_new_world
+group by country
+)
+------
+select distinct(sov) as sov 
+from the_new_world
+order by sov;
+-------
+Canada 4
+Japan 4
+Philippines 10
+Malaysia 2
+Greece 4
+New Zealand 2
+-------
+delete from b_biggest_geoms
+  where sov = 'Canada';
+insert into b_biggest_geoms  (
+select objectid, country, sov, the_geom
+from the_new_world
+where sov = 'Canada'
+order by st_area(the_geom) desc
+limit 5)
+----
+  repeat this for each country
+  filling in the name and number
+---
